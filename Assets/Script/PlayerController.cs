@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class PlayerController : MonoBehaviour
 {
@@ -32,9 +33,15 @@ public class PlayerController : MonoBehaviour
 
     //내부 변수들
     public bool isFirstPerson = true;          //1인칭 모드 인지 여부
-    private bool isGrounded;                    //플레이어가 땅에 있지 여부
+    //private bool isGrounded;                    //플레이어가 땅에 있지 여부
     private Rigidbody rb;                       //플레이어의 Rigidbody
 
+    public float fallingThreshold = -0.1f;                      //떨어지는것으로 간주할 수직 속도 임계값
+
+    [Header("Ground Check Setting")]
+    public float groundCheckDistance = 0.3f;
+    public float slopedLimit = 45f;
+    public const int groundCheckPoints = 5;
 
     // Start is called before the first frame update
     void Start()
@@ -50,8 +57,12 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         HandleRotation();
-        Handlejump();
         HandleCameraToggle();
+
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            Handlejump();
+        }
     }
 
     private void FixedUpdate()
@@ -66,7 +77,7 @@ public class PlayerController : MonoBehaviour
     }
 
     //카메라 및 캐릭터 회전 처리하는 함수
-    void HandleRotation()
+    public void HandleRotation()
     {
         float mouseX = Input.GetAxis("Mouse X") * mouseSenesitivity;     //마우스 좌우 입력
         float mouseY = Input.GetAxis("Mouse Y") * mouseSenesitivity;     //마우스 상하 입력
@@ -100,7 +111,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void HandleCameraToggle()
+    public void HandleCameraToggle()
     {
         if (Input.GetKeyDown(KeyCode.C))
         {
@@ -118,15 +129,14 @@ public class PlayerController : MonoBehaviour
     //플레이어 점프를 처리하는 함수
     void Handlejump()
     {
-        //점프 버튼을 누르고 땅에 있을 떄
-        if(Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        //점프 버튼을 누르고 땅에 있을 때
+        if (isGrounded())
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);     //위쪽으로 힘을 가해 점프
-            isGrounded = false;                                         //공중에 있는 상태로 전환
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);                     //위쪽으로 힘을 가해 점프
         }
     }
 
-    void HandleMovement()
+    public void HandleMovement()
     {
         float moveHorizontal = Input.GetAxis("Horizontal");             //좌우 입력 (-1, 1)
         float moveVertical = Input.GetAxis("Vertical");                   //앞뒤 입력 (1, -1)
@@ -161,9 +171,19 @@ public class PlayerController : MonoBehaviour
         rb.MovePosition(rb.position + movement * moveSpeed * Time.deltaTime);
     }
 
-    //플레이어가 땅에 닿아 있는지 감지
-    private void OnCollisionStay(Collision collision)
+    public bool isFalling()
     {
-        isGrounded = true;          //충돌 중이면 플레이어는 땅에 있다
+        return Physics.Raycast(transform.position, Vector3.down, 2.0f);
     }
+
+    public bool isGrounded()
+    {
+        return Physics.Raycast(transform.position, Vector3.down, 2.0f);
+    }
+   
+    public float GetVerticalVelocity()
+    {
+        return rb.velocity.y;
+    }
+    
 }
