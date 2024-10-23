@@ -40,6 +40,11 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void TransitionToState(PlayerState newState)
     {
+        //현재 상태와 새로운 상태가 같은 타입 일 경우
+        if (currenState?.GetType() == newState.GetType())
+        {
+            return;                     //같은 타입이면 상태를 전환 하지 않고 리턴
+        }
         //현재 상태가 존재한다면 Exit 메서드를 호출
         currenState?.Exit();        //검사해서 호출 종료 (?)는 IF 조건
 
