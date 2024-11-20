@@ -23,13 +23,13 @@ public class PlayerAnimationManager : MonoBehaviour
     private void UpdateAnimationState()
     {
         //현재 상태에 따라 애니메이션 파라미터 진행
-        if(stateMachine.currenState != null)
+        if (stateMachine.currentState != null)
         {
             //모든 bool 파라미터를 초기화
             ResetAIIBoolParameters();
 
             //현재 상태에 따라 해당하는 애니메이션 파라미터를 설정
-            switch (stateMachine.currenState)
+            switch (stateMachine.currentState)
             {
                 case IdleState:
                     //Idle 상태는 모든 파라미터가 false인 상태
